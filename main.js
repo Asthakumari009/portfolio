@@ -170,7 +170,7 @@ scene.add(heroMesh);
 // wireframe halo
 const halo = new THREE.Mesh(
   new THREE.IcosahedronGeometry(2.3, 1),
-  new THREE.MeshBasicMaterial({ color: 0xc8ff3e, wireframe: true, transparent: true, opacity: 0.1 })
+  new THREE.MeshBasicMaterial({ color: 0xc8ff3e, wireframe: true, transparent: true, opacity: 0.06 })
 );
 halo.position.copy(heroMesh.position);
 scene.add(halo);
@@ -178,7 +178,7 @@ scene.add(halo);
 // outer ring
 const ring = new THREE.Mesh(
   new THREE.TorusGeometry(2.8, 0.012, 16, 128),
-  new THREE.MeshBasicMaterial({ color: 0xc8ff3e, transparent: true, opacity: 0.5 })
+  new THREE.MeshBasicMaterial({ color: 0xc8ff3e, transparent: true, opacity: 0.25 })
 );
 ring.rotation.x = Math.PI / 2.4;
 ring.position.copy(heroMesh.position);
@@ -312,7 +312,7 @@ composer.addPass(new RenderPass(scene, camera));
 
 const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
-  isMobile ? 0.55 : 0.85,   // strength
+  isMobile ? 0.4 : 0.65,    // strength
   0.7,                       // radius
   0.18                       // threshold
 );
@@ -406,7 +406,7 @@ function tick() {
   camera.lookAt(0, scroll.y * 2, -scroll.y * 2);
 
   // bloom strength reacts to scroll velocity
-  bloomPass.strength = (isMobile ? 0.55 : 0.85) + scroll.vel * 0.4;
+  bloomPass.strength = (isMobile ? 0.4 : 0.65) + scroll.vel * 0.2;
 
   if (!reduceMotion) composer.render();
   requestAnimationFrame(tick);

@@ -939,20 +939,6 @@ img { max-width: 100%; display: block; }
 
 /* ─────────────── ABOUT ─────────────── */
 
-.about {
-  position: relative;
-  isolation: isolate;
-}
-
-.about::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(circle at 80% 30%, rgba(10, 10, 15, 0.88) 0%, rgba(10, 10, 15, 0.65) 45%, rgba(10, 10, 15, 0) 70%);
-  pointer-events: none;
-}
-
 .about__grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -962,9 +948,8 @@ img { max-width: 100%; display: block; }
 
 .about__copy p {
   font-size: clamp(1rem, 1.3vw, 1.15rem);
-  color: #d6d6df;
+  color: var(--text-dim);
   margin-bottom: 1.25rem;
-  text-shadow: 0 2px 18px rgba(10, 10, 15, 0.65);
 }
 
 .about__copy strong { color: var(--text); font-weight: 600; }

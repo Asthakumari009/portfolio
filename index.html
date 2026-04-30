@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0f" />
+  <title>SAAD° — CS Engineer · AI Builder · Full-Stack Dev</title>
+  <meta name="description" content="Portfolio of Syed Saad Ur Rahman — B.Tech CS student building AI-powered apps, SaaS, and full-stack web experiences." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ─────────── INTRO SEQUENCE ─────────── -->
+  <div id="intro" class="intro">
+    <div class="intro__inner">
+      <div class="intro__row">
+        <span class="intro__label">PORTFOLIO/26</span>
+        <span class="intro__count" id="intro-count">000</span>
+      </div>
+      <div class="intro__name" id="intro-name">
+        <span class="intro__name-fg">SAAD</span>
+        <span class="intro__name-bg" aria-hidden="true">SAAD</span>
+      </div>
+      <div class="intro__row">
+        <span class="intro__label">SYS · BOOTING SCENE</span>
+        <span class="intro__label" id="intro-status">LOADING ASSETS</span>
+      </div>
+      <div class="intro__bar"><span></span></div>
+    </div>
+    <div class="intro__curtain"></div>
+  </div>
+
+  <!-- ─────────── PAGE TRANSITION CURTAIN ─────────── -->
+  <div class="curtain" id="curtain" aria-hidden="true">
+    <span class="curtain__panel"></span>
+    <span class="curtain__panel"></span>
+    <span class="curtain__panel"></span>
+    <span class="curtain__panel"></span>
+  </div>
+
+  <!-- ─────────── CUSTOM CURSOR ─────────── -->
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <div class="cursor__dot"></div>
+    <div class="cursor__ring"><span class="cursor__label"></span></div>
+  </div>
+
+  <!-- ─────────── 3D CANVAS ─────────── -->
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <!-- ─────────── SECTION INDICATOR ─────────── -->
+  <aside class="indicator" id="indicator" aria-hidden="true">
+    <a href="#home" data-section="home" class="is-active"><span>00</span><i></i></a>
+    <a href="#work" data-section="work"><span>01</span><i></i></a>
+    <a href="#about" data-section="about"><span>02</span><i></i></a>
+    <a href="#stack" data-section="stack"><span>03</span><i></i></a>
+    <a href="#contact" data-section="contact"><span>04</span><i></i></a>
+  </aside>
+
+  <!-- ─────────── SCROLL PROGRESS ─────────── -->
+  <div class="progress" aria-hidden="true"><span id="progress"></span></div>
+
+  <!-- ─────────── NAV ─────────── -->
+  <nav class="nav" id="nav">
+    <a href="#home" class="nav__logo" data-cursor="link" data-magnetic>
+      <span class="nav__logo-mark">S°</span>
+      <span class="nav__logo-text" data-scramble>saad.dev</span>
+    </a>
+
+    <ul class="nav__links">
+      <li><a href="#work" data-cursor="link" data-scramble><span>01</span> Work</a></li>
+      <li><a href="#about" data-cursor="link" data-scramble><span>02</span> About</a></li>
+      <li><a href="#stack" data-cursor="link" data-scramble><span>03</span> Stack</a></li>
+      <li><a href="#contact" data-cursor="link" data-scramble><span>04</span> Contact</a></li>
+    </ul>
+
+    <div class="nav__right">
+      <button class="audio-toggle" id="audio-toggle" aria-label="Toggle ambient audio" data-cursor="link">
+        <span class="audio-toggle__bars">
+          <i></i><i></i><i></i><i></i>
+        </span>
+        <span class="audio-toggle__label">SOUND OFF</span>
+      </button>
+      <a href="#contact" class="nav__cta" data-cursor="cta" data-magnetic>
+        <span>Let's talk</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <button class="nav__burger" id="burger" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ─────────── MOBILE MENU ─────────── -->
+  <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+    <ul>
+      <li><a href="#work"><span>01</span> Work</a></li>
+      <li><a href="#about"><span>02</span> About</a></li>
+      <li><a href="#stack"><span>03</span> Stack</a></li>
+      <li><a href="#contact"><span>04</span> Contact</a></li>
+    </ul>
+    <div class="mobile-menu__foot">
+      <a href="mailto:001saadurrahman@gmail.com">001saadurrahman@gmail.com</a>
+      <a href="tel:+919959864292">+91 9959864292</a>
+      <a href="https://www.linkedin.com/in/syed-saad-ur-rahman-16720130b/" target="_blank" rel="noopener">LinkedIn ↗</a>
+    </div>
+  </div>
+
+  <!-- ─────────── HERO ─────────── -->
+  <header class="hero" id="home" data-section="home">
+    <div class="hero__bg-text" aria-hidden="true">SAAD</div>
+
+    <div class="hero__inner">
+      <div class="hero__tag fade-up">
+        <span class="hero__tag-dot"></span>
+        <span data-scramble>Engineering since '21 · Hyderabad, IN</span>
+      </div>
+
+      <h1 class="hero__title">
+        <span class="hero__line"><span class="reveal">Building</span></span>
+        <span class="hero__line"><span class="reveal italic">intelligent</span></span>
+        <span class="hero__line"><span class="reveal">products at the</span></span>
+        <span class="hero__line"><span class="reveal accent">edge of AI &amp; web.</span></span>
+      </h1>
+
+      <p class="hero__sub fade-up">
+        <strong>Syed Saad Ur Rahman</strong> — Computer Science engineer designing AI-driven products and full-stack SaaS for production environments. Contributing engineer on a Guinness World Record team in Agentic AI; Winner, NGIT Project Expo 2025.
+      </p>
+
+      <div class="hero__cta-row fade-up">
+        <a href="#work" class="btn btn--primary" data-cursor="cta" data-magnetic>
+          <span data-scramble>See my work</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </a>
+        <a href="#contact" class="btn btn--ghost" data-cursor="cta" data-magnetic>
+          <span data-scramble>Get in touch</span>
+        </a>
+      </div>
+
+      <div class="hero__meta">
+        <div class="hero__meta-item">
+          <span class="hero__meta-num" data-count="8">0</span>+
+          <span class="hero__meta-label">Projects shipped</span>
+        </div>
+        <div class="hero__meta-item">
+          <span class="hero__meta-num" data-count="4">0</span>
+          <span class="hero__meta-label">Hackathons</span>
+        </div>
+        <div class="hero__meta-item">
+          <span class="hero__meta-num">1</span>
+          <span class="hero__meta-label">World Record</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__scroll" aria-hidden="true">
+      <span>scroll</span>
+      <div class="hero__scroll-line"></div>
+    </div>
+  </header>
+
+  <!-- ─────────── MARQUEE ─────────── -->
+  <section class="marquee marquee--lg" aria-hidden="true">
+    <div class="marquee__track" data-marquee>
+      <span>Building in public</span><span class="marquee__star">✦</span>
+      <span class="marquee__accent">AI Engineer</span><span class="marquee__star">✦</span>
+      <span>Full-Stack Dev</span><span class="marquee__star">✦</span>
+      <span class="marquee__accent">SaaS Builder</span><span class="marquee__star">✦</span>
+      <span>LLM &amp; Prompt Eng</span><span class="marquee__star">✦</span>
+      <span class="marquee__accent">React · Python · Java</span><span class="marquee__star">✦</span>
+      <span>Hackathon Winner</span><span class="marquee__star">✦</span>
+    </div>
+  </section>
+
+  <section class="marquee marquee--sm marquee--reverse" aria-hidden="true">
+    <div class="marquee__track" data-marquee="reverse">
+      <span>Hyderabad / Remote ·</span>
+      <span>001saadurrahman@gmail.com ·</span>
+      <span>Currently engineering agentic AI systems ·</span>
+      <span>Open to collaborations &amp; full-stack SaaS work ·</span>
+      <span>+91 9959864292 ·</span>
+    </div>
+  </section>
+
+  <!-- ─────────── ABOUT ─────────── -->
+  <section class="section about" id="about" data-section="about">
+    <div class="section__head">
+      <span class="section__num">02 / About</span>
+      <h2 class="section__title fade-up">Computer Science engineer focused on <span class="accent">shipping production-grade AI products.</span></h2>
+    </div>
+
+    <div class="about__grid">
+      <div class="about__copy fade-up">
+        <p>Pursuing my B.Tech in Computer Science Engineering at <strong>Neil Gogte Institute of Technology</strong> (2024–2027), preceded by a Diploma in Computer Science at Pallavi Engineering College.</p>
+        <p>My work spans applied AI, full-stack web platforms, and production-deployed SaaS — from agentic LLM systems and multi-modal forensics to multi-branch ordering platforms and computer-vision tooling.</p>
+        <p>I optimize for shipping. Every product I lead operates under live constraints — paying users, tight deadlines, and real failure modes — because production environments teach what specs can't.</p>
+
+        <div class="about__quote">
+          <span>"</span>
+          <p><em>Build → break → learn → ship → repeat.</em></p>
+        </div>
+      </div>
+
+      <div class="about__card glass fade-up" data-tilt>
+        <div class="about__card-row">
+          <span class="about__card-key">NAME</span>
+          <span data-scramble>Syed Saad Ur Rahman</span>
+        </div>
+        <div class="about__card-row">
+          <span class="about__card-key">ROLE</span>
+          <span data-scramble>CS Engineer · AI Builder</span>
+        </div>
+        <div class="about__card-row">
+          <span class="about__card-key">BASED</span>
+          <span data-scramble>Hyderabad, India</span>
+        </div>
+        <div class="about__card-row">
+          <span class="about__card-key">EDU</span>
+          <span data-scramble>NGIT · B.Tech CSE '27</span>
+        </div>
+        <div class="about__card-row">
+          <span class="about__card-key">FOCUS</span>
+          <span data-scramble>AI · SaaS · Full-Stack</span>
+        </div>
+        <div class="about__card-row">
+          <span class="about__card-key">STATUS</span>
+          <span class="about__card-status"><i></i> Currently engineering</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── WORK ─────────── -->
+  <section class="section work" id="work" data-section="work">
+    <div class="section__head">
+      <span class="section__num">01 / Selected Work</span>
+      <h2 class="section__title fade-up">Production work, <span class="italic">not portfolio fluff.</span></h2>
+    </div>
+
+    <div class="work__grid">
+
+      <article class="project glass" data-tilt data-cursor="project" data-num="01">
+        <span class="project__bignum" aria-hidden="true">01</span>
+        <div class="project__head">
+          <span class="project__tag">Agentic AI · LLM</span>
+          <span class="project__year">2025</span>
+        </div>
+        <h3 class="project__title" data-scramble>BidScrutiny Engine</h3>
+        <p class="project__desc">Agentic AI system for automated tender evaluation. Pipelines unstructured procurement documents through an LLM reasoning layer to surface structured insights, reducing manual review time by an order of magnitude.</p>
+        <ul class="project__stack">
+          <li>LLM</li><li>Python</li><li>Prompt Eng</li><li>PDF Pipeline</li>
+        </ul>
+        <div class="project__shape" aria-hidden="true"></div>
+        <div class="project__shine" aria-hidden="true"></div>
+      </article>
+
+      <article class="project glass" data-tilt data-cursor="project" data-num="02">
+        <span class="project__bignum" aria-hidden="true">02</span>
+        <div class="project__head">
+          <span class="project__tag">Computer Vision · AgriTech</span>
+          <span class="project__year">2025</span>
+        </div>
+        <h3 class="project__title" data-scramble>FasalDoc</h3>
+        <p class="project__desc">Computer vision model for early plant disease detection from a single leaf image. Engineered for smallholder farmers operating under low-bandwidth, low-latency field conditions.</p>
+        <ul class="project__stack">
+          <li>Computer Vision</li><li>Python</li><li>AI Models</li>
+        </ul>
+        <div class="project__shape" aria-hidden="true"></div>
+        <div class="project__shine" aria-hidden="true"></div>
+      </article>
+
+      <article class="project glass project--wide" data-tilt data-cursor="project" data-num="03">
+        <span class="project__bignum" aria-hidden="true">03</span>
+        <div class="project__head">
+          <span class="project__tag">Multi-modal AI · Forensics</span>
+          <span class="project__year">2025</span>
+        </div>
+        <h3 class="project__title" data-scramble>TruthLens</h3>
+        <p class="project__desc">Multi-modal misinformation detection platform. Combines LLM reasoning, digital forensic analysis, and rPPG-based deepfake detection to score authenticity of media content end-to-end.</p>
+        <ul class="project__stack">
+          <li>Deepfake</li><li>rPPG</li><li>Forensics</li><li>LLM</li>
+        </ul>
+        <div class="project__shape" aria-hidden="true"></div>
+        <div class="project__shine" aria-hidden="true"></div>
+      </article>
+
+      <article class="project glass" data-tilt data-cursor="project" data-num="04">
+        <span class="project__bignum" aria-hidden="true">04</span>
+        <div class="project__head">
+          <span class="project__tag">SaaS · Multi-tenant</span>
+          <span class="project__year">2025</span>
+        </div>
+        <h3 class="project__title" data-scramble>Café POS</h3>
+        <p class="project__desc">Multi-branch restaurant ordering platform with centralized inventory, branch-scoped permissions, premium receipt generation, and a Razorpay-integrated payments layer designed for franchise operators.</p>
+        <ul class="project__stack">
+          <li>Full-Stack</li><li>Razorpay</li><li>Firebase</li>
+        </ul>
+        <div class="project__shape" aria-hidden="true"></div>
+        <div class="project__shine" aria-hidden="true"></div>
+      </article>
+
+      <article class="project glass project--wide" data-tilt data-cursor="project" data-num="05">
+        <span class="project__bignum" aria-hidden="true">05</span>
+        <div class="project__head">
+          <span class="project__tag">Client Project · Production</span>
+          <span class="project__year">2024</span>
+        </div>
+        <h3 class="project__title" data-scramble>Construction Co. Website</h3>
+        <p class="project__desc">Production corporate website for a construction firm. Mobile-first information architecture, performance-tuned asset pipeline, and integrated lead capture via WhatsApp — shipped to a paying client.</p>
+        <ul class="project__stack">
+          <li>HTML</li><li>CSS</li><li>JS</li><li>Responsive UI</li>
+        </ul>
+        <div class="project__shape" aria-hidden="true"></div>
+        <div class="project__shine" aria-hidden="true"></div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ─────────── PROCESS ─────────── -->
+  <section class="section process">
+    <div class="section__head">
+      <span class="section__num">~ / Process</span>
+      <h2 class="section__title fade-up">How I move from <span class="accent italic">idea → shipped</span>.</h2>
+    </div>
+    <ol class="process__list">
+      <li class="process__item fade-up">
+        <span class="process__num">01</span>
+        <h4 data-scramble>Discover</h4>
+        <p>Define the user, the constraint, and the smallest viable surface area that validates the hypothesis.</p>
+      </li>
+      <li class="process__item fade-up">
+        <span class="process__num">02</span>
+        <h4 data-scramble>Architect</h4>
+        <p>Map data flows, select the leanest stack, and design for the failure modes — not the happy path.</p>
+      </li>
+      <li class="process__item fade-up">
+        <span class="process__num">03</span>
+        <h4 data-scramble>Build</h4>
+        <p>Ship in tight iterations. Production prototypes meet real users early — feedback shapes v1, not v10.</p>
+      </li>
+      <li class="process__item fade-up">
+        <span class="process__num">04</span>
+        <h4 data-scramble>Deploy</h4>
+        <p>Launch under live constraints — observability, performance budgets, and recoverability built in from day one.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ─────────── STACK ─────────── -->
+  <section class="section stack" id="stack" data-section="stack">
+    <div class="section__head">
+      <span class="section__num">03 / Tech Stack</span>
+      <h2 class="section__title fade-up">Tools I reach for daily.</h2>
+    </div>
+
+    <div class="stack__grid">
+      <div class="stack__col fade-up">
+        <h4 class="stack__col-title"><span>//</span> Languages</h4>
+        <div class="stack__tags">
+          <span data-magnetic>Python</span><span data-magnetic>JavaScript</span><span data-magnetic>Java</span><span data-magnetic>C</span>
+        </div>
+      </div>
+
+      <div class="stack__col fade-up">
+        <h4 class="stack__col-title"><span>//</span> AI &amp; Data</h4>
+        <div class="stack__tags">
+          <span data-magnetic>LLM Basics</span><span data-magnetic>Prompt Engineering</span><span data-magnetic>Data Extraction</span><span data-magnetic>PDF Processing</span><span data-magnetic>Applied AI</span>
+        </div>
+      </div>
+
+      <div class="stack__col fade-up">
+        <h4 class="stack__col-title"><span>//</span> Web</h4>
+        <div class="stack__tags">
+          <span data-magnetic>HTML</span><span data-magnetic>CSS</span><span data-magnetic>JavaScript</span><span data-magnetic>React</span><span data-magnetic>Responsive UI/UX</span><span data-magnetic>Razorpay / UPI</span>
+        </div>
+      </div>
+
+      <div class="stack__col fade-up">
+        <h4 class="stack__col-title"><span>//</span> Data &amp; Tools</h4>
+        <div class="stack__tags">
+          <span data-magnetic>Firebase</span><span data-magnetic>Supabase</span><span data-magnetic>Sheets API</span><span data-magnetic>Git</span><span data-magnetic>GitHub</span><span data-magnetic>VS Code</span><span data-magnetic>Canva</span>
+        </div>
+      </div>
+
+      <div class="stack__col fade-up">
+        <h4 class="stack__col-title"><span>//</span> CS Foundations</h4>
+        <div class="stack__tags">
+          <span data-magnetic>DBMS</span><span data-magnetic>Computer Networks</span><span data-magnetic>OOP</span>
+        </div>
+      </div>
+
+      <div class="stack__col fade-up">
+        <h4 class="stack__col-title"><span>//</span> Currently Exploring</h4>
+        <div class="stack__tags">
+          <span data-magnetic>Agentic AI</span><span data-magnetic>SaaS Pricing</span><span data-magnetic>Cloud Deploy</span><span data-magnetic>Three.js</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── ACHIEVEMENTS ─────────── -->
+  <section class="section achievements">
+    <div class="section__head">
+      <span class="section__num">~ / Recognition</span>
+      <h2 class="section__title fade-up">Recognition <span class="italic">&amp; Receipts.</span></h2>
+    </div>
+
+    <ul class="timeline">
+      <li class="timeline__item fade-up">
+        <span class="timeline__year">2025</span>
+        <div class="timeline__body">
+          <h4 data-scramble>Guinness World Record — Agentic AI Hackathon</h4>
+          <p>Contributing engineer on the team that set a Guinness World Record at the world's largest Agentic AI hackathon.</p>
+        </div>
+        <span class="timeline__badge">★</span>
+      </li>
+      <li class="timeline__item fade-up">
+        <span class="timeline__year">2025</span>
+        <div class="timeline__body">
+          <h4 data-scramble>Winner — NGIT Project Expo 2025</h4>
+          <p>Best Academic Project Presentation across the institute.</p>
+        </div>
+        <span class="timeline__badge">★</span>
+      </li>
+      <li class="timeline__item fade-up">
+        <span class="timeline__year">2025</span>
+        <div class="timeline__body">
+          <h4 data-scramble>DenovateX — HackWithIndia</h4>
+          <p>National-level hackathon participant; shipped under aggressive deadline constraints.</p>
+        </div>
+      </li>
+      <li class="timeline__item fade-up">
+        <span class="timeline__year">2025</span>
+        <div class="timeline__body">
+          <h4 data-scramble>Code-To-Cloud Certification</h4>
+          <p>Cloud fundamentals and modern production deployment workflows.</p>
+        </div>
+      </li>
+      <li class="timeline__item fade-up">
+        <span class="timeline__year">2024</span>
+        <div class="timeline__body">
+          <h4 data-scramble>Mobile App Development — Workshop</h4>
+          <p>Hands-on exposure to native mobile application fundamentals and architecture.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ─────────── CONTACT ─────────── -->
+  <section class="section contact" id="contact" data-section="contact">
+    <div class="contact__inner">
+      <span class="section__num">04 / Contact</span>
+      <h2 class="contact__title">
+        <span class="reveal">Have a product,</span>
+        <span class="reveal italic accent">a role,</span>
+        <span class="reveal">or just an idea?</span>
+      </h2>
+
+      <a href="mailto:001saadurrahman@gmail.com" class="contact__mail" data-cursor="cta" data-magnetic>
+        <span data-scramble>001saadurrahman@gmail.com</span>
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg>
+      </a>
+
+      <div class="contact__grid">
+        <a class="contact__link glass" href="https://www.linkedin.com/in/syed-saad-ur-rahman-16720130b/" target="_blank" rel="noopener" data-cursor="link" data-tilt>
+          <span class="contact__link-key">LinkedIn ↗</span>
+          <span class="contact__link-val" data-scramble>/syed-saad-ur-rahman</span>
+        </a>
+        <a class="contact__link glass" href="tel:+919959864292" data-cursor="link" data-tilt>
+          <span class="contact__link-key">Phone ↗</span>
+          <span class="contact__link-val" data-scramble>+91 9959864292</span>
+        </a>
+        <a class="contact__link glass" href="https://maps.google.com/?q=Sri+Sai+Enclave+Old+Bowenpally+Hyderabad" target="_blank" rel="noopener" data-cursor="link" data-tilt>
+          <span class="contact__link-key">Location ↗</span>
+          <span class="contact__link-val" data-scramble>Old Bowenpally, Hyderabad</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="contact__giant" aria-hidden="true">
+      <span data-marquee class="contact__giant-track">
+        SAY HI · SAY HI · SAY HI · SAY HI · SAY HI · SAY HI · SAY HI · SAY HI ·
+      </span>
+    </div>
+
+    <footer class="footer">
+      <div>© 2026 Syed Saad Ur Rahman. Built with Three.js &amp; caffeine.</div>
+      <div>v2.0 — handcrafted with Three.js, no templates.</div>
+    </footer>
+  </section>
+
+  <!-- ─────────── SCRIPTS ─────────── -->
+  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="main.js"></script>
+  <script src="app.js" defer></script>
+</body>
+</html>

@@ -12,9 +12,13 @@ no runtime dependencies.
 - styles.css: Design system, layout, and motion
 - app.js: Reveal motion, nav state, mobile menu, contact form
 - api/contact.js: Serverless endpoint that emails the contact form (Resend)
-- public/: Optimized live screenshots of the featured projects (WebP)
-- public/thumbs/: Optimized thumbnail-design samples for the Design marquee (WebP)
+- assets/: Optimized live screenshots of the featured projects (WebP)
+- assets/thumbs/: Optimized thumbnail-design samples for the Design marquee (WebP)
 - serve.bat: Local dev server helper
+
+> Note: the image folder is named `assets/`, not `public/`. On Vercel a static
+> site with a `public/` directory serves that folder as the site root, which
+> hides the root `index.html` and 404s the homepage.
 
 ## Contact form (email)
 
@@ -40,9 +44,9 @@ The three featured projects embed live, auto-captured screenshots via
 [thum.io](https://www.thum.io) (no API key). They lazy-load with a reserved
 1200×900 box and a skeleton shimmer, so there is no layout shift.
 
-For best quality/reliability in production, capture each shot once, save an
-optimized image under `/public`, and swap the `src` in the matching
-`.feat__media` block in `index.html`.
+The featured screenshots are already captured once and stored as optimized
+WebP in `assets/`. To refresh one, recapture it, re-optimize to WebP, and keep
+the same filename in `assets/`.
 
 ## Run locally
 

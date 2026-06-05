@@ -1,0 +1,5 @@
+.agents/
+skills-lock.json
+.preview/
+node_modules/
+*.log

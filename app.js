@@ -1,470 +1,288 @@
 // ──────────────────────────────────────────────────────────────
-// APP v2 — intro · smooth scroll · magnetic · scramble · audio
+// SAAD° — interaction layer
+// Reveal motion, masthead state, active nav, mobile menu, contact form.
+// No external dependencies.
 // ──────────────────────────────────────────────────────────────
 
 (function () {
   'use strict';
 
-  const isCoarse = window.matchMedia('(pointer: coarse)').matches;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ── INTRO SEQUENCE ──────────────────────────────────────────
-  const intro = document.getElementById('intro');
-  const introBar = intro.querySelector('.intro__bar span');
-  const introCount = document.getElementById('intro-count');
-  const introStatus = document.getElementById('intro-status');
+  // app.js is in control now — cancel the head-level "force everything visible" timer.
+  if (window.__showFailsafe) clearTimeout(window.__showFailsafe);
 
-  const STATUSES = [
-    'LOADING ASSETS', 'COMPILING SHADERS', 'WARMING PARTICLES',
-    'CALIBRATING SCENE', 'READY',
-  ];
-  let pct = 0, statusIdx = 0;
-  const introTimer = setInterval(() => {
-    pct += Math.random() * 6 + 3;
-    if (pct >= 100) {
-      pct = 100;
-      clearInterval(introTimer);
-      introStatus.textContent = STATUSES[STATUSES.length - 1];
-      setTimeout(finishIntro, 600);
+  // ── SCROLL REVEAL (transform/opacity only, staggered per group) ──
+  const revealEls = Array.from(document.querySelectorAll('[data-reveal]'));
+  const heroTitle = document.querySelector('[data-hero-title]');
+  const revealAll = () => {
+    revealEls.forEach((el) => el.classList.add('is-in'));
+    if (heroTitle) heroTitle.classList.add('is-in');
+  };
+
+  if (!reduceMotion && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        // stagger relative to data-reveal siblings sharing a parent
+        const group = Array.from(el.parentElement.querySelectorAll(':scope > [data-reveal]'));
+        const i = Math.max(0, group.indexOf(el));
+        el.style.setProperty('--reveal-delay', `${Math.min(i * 70, 350)}ms`);
+        el.classList.add('is-in');
+        obs.unobserve(el);
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+
+    revealEls.forEach((el) => io.observe(el));
+    if (heroTitle) requestAnimationFrame(() => heroTitle.classList.add('is-in'));
+
+    // Failsafe: content must never stay hidden. If a render context never
+    // scrolls (headless, prerender, hidden tab), reveal everything anyway.
+    window.addEventListener('load', () => setTimeout(revealAll, 2500), { once: true });
+  } else {
+    revealAll();
+  }
+
+  // ── SCROLL PROGRESS BAR ──
+  const progress = document.querySelector('.scroll-progress span');
+  if (progress) {
+    let ticking = false;
+    const updateProgress = () => {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      progress.style.width = (max > 0 ? (doc.scrollTop / max) * 100 : 0) + '%';
+      ticking = false;
+    };
+    window.addEventListener('scroll', () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(updateProgress); }
+    }, { passive: true });
+    updateProgress();
+  }
+
+  // ── MASTHEAD: hairline on scroll ──
+  const masthead = document.querySelector('.masthead');
+  const onScroll = () => masthead.classList.toggle('is-stuck', window.scrollY > 8);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // ── ACTIVE NAV LINK ──
+  const navLinks = Array.from(document.querySelectorAll('.masthead__nav a'));
+  const sections = navLinks
+    .map((a) => document.querySelector(a.getAttribute('href')))
+    .filter(Boolean);
+
+  if (sections.length && 'IntersectionObserver' in window) {
+    const spy = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const id = '#' + e.target.id;
+        navLinks.forEach((a) => a.classList.toggle('is-active', a.getAttribute('href') === id));
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    sections.forEach((s) => spy.observe(s));
+  }
+
+  // ── MOBILE MENU ──
+  const menuBtn = document.getElementById('menu-btn');
+  const mobileNav = document.getElementById('mobile-nav');
+
+  function setMenu(open) {
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (open) {
+      mobileNav.hidden = false;
+      requestAnimationFrame(() => mobileNav.classList.add('is-open'));
     } else {
-      const newIdx = Math.min(STATUSES.length - 2, Math.floor(pct / 25));
-      if (newIdx !== statusIdx) {
-        statusIdx = newIdx;
-        introStatus.textContent = STATUSES[statusIdx];
-      }
+      mobileNav.classList.remove('is-open');
+      setTimeout(() => { mobileNav.hidden = true; }, reduceMotion ? 0 : 280);
     }
-    introBar.style.width = pct + '%';
-    introCount.textContent = String(Math.floor(pct)).padStart(3, '0');
-  }, 70);
-
-  function finishIntro() {
-    intro.classList.add('is-done');
-    document.body.classList.add('is-loaded');
-    setTimeout(() => intro.remove(), 1300);
   }
 
-  // ── LENIS SMOOTH SCROLL ─────────────────────────────────────
-  let lenis = null;
-  if (window.Lenis && !reduceMotion) {
-    lenis = new window.Lenis({
-      duration: 1.15,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      smoothTouch: false,
-      touchMultiplier: 1.6,
+  if (menuBtn && mobileNav) {
+    menuBtn.addEventListener('click', () => {
+      setMenu(menuBtn.getAttribute('aria-expanded') !== 'true');
     });
-
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-  }
-
-  // ── CUSTOM CURSOR ───────────────────────────────────────────
-  if (!isCoarse) {
-    const cursor = document.getElementById('cursor');
-    const dot = cursor.querySelector('.cursor__dot');
-    const ring = cursor.querySelector('.cursor__ring');
-    const label = cursor.querySelector('.cursor__label');
-
-    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-    let dx = mx, dy = my;
-    let rx = mx, ry = my;
-
-    document.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
-
-    function cursorTick() {
-      dx += (mx - dx) * 0.55;
-      dy += (my - dy) * 0.55;
-      rx += (mx - rx) * 0.18;
-      ry += (my - ry) * 0.18;
-      dot.style.transform = `translate(${dx}px, ${dy}px) translate(-50%, -50%)`;
-      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
-      requestAnimationFrame(cursorTick);
-    }
-    cursorTick();
-
-    document.querySelectorAll('a, button, [data-cursor]').forEach((el) => {
-      el.addEventListener('mouseenter', () => {
-        cursor.classList.add('is-hover');
-        const kind = el.dataset.cursor;
-        if (kind === 'cta') {
-          cursor.classList.add('is-cta');
-          label.textContent = 'CLICK';
-        } else if (kind === 'project') {
-          cursor.classList.add('is-project');
-          label.textContent = 'VIEW';
-        }
-      });
-      el.addEventListener('mouseleave', () => {
-        cursor.classList.remove('is-hover', 'is-cta', 'is-project');
-        label.textContent = '';
-      });
+    mobileNav.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menuBtn.getAttribute('aria-expanded') === 'true') setMenu(false);
     });
-
-    document.addEventListener('mouseleave', () => cursor.style.opacity = '0');
-    document.addEventListener('mouseenter', () => cursor.style.opacity = '1');
   }
 
-  // ── MAGNETIC BUTTONS ────────────────────────────────────────
-  if (!isCoarse) {
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  // ── HERO SHOWCASE: auto-rotating carousel of live projects ──
+  const showcase = document.querySelector('[data-showcase]');
+  if (showcase) {
+    const slides = [
+      { domain: 'crackedai.in',           label: 'Cracked AI', href: 'https://crackedai.in' },
+      { domain: 'van-lavino.vercel.app',  label: 'Van Lavino', href: 'https://van-lavino.vercel.app' },
+      { domain: 'tender-iq-mu.vercel.app', label: 'TenderIQ',  href: 'https://tender-iq-mu.vercel.app' },
+    ];
+    const imgs = Array.from(showcase.querySelectorAll('.showcase__img'));
+    const dots = Array.from(showcase.querySelectorAll('.showcase__dot'));
+    const link = document.getElementById('showcase-link');
+    const domainEl = document.getElementById('showcase-domain');
+    const labelEl = document.getElementById('showcase-label');
+    let idx = 0;
+    let timer = null;
+
+    const show = (n) => {
+      idx = (n + slides.length) % slides.length;
+      imgs.forEach((im, i) => im.classList.toggle('is-active', i === idx));
+      dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+      link.href = slides[idx].href;
+      domainEl.textContent = slides[idx].domain;
+      labelEl.textContent = slides[idx].label;
+    };
+
+    const start = () => {
+      if (reduceMotion || timer) return;
+      timer = setInterval(() => show(idx + 1), 3600);
+    };
+    const stop = () => { clearInterval(timer); timer = null; };
+
+    dots.forEach((d, i) => d.addEventListener('click', (e) => {
+      e.preventDefault();
+      stop(); show(i); start();
+    }));
+    showcase.addEventListener('mouseenter', stop);
+    showcase.addEventListener('mouseleave', start);
+    showcase.addEventListener('focusin', stop);
+    showcase.addEventListener('focusout', start);
+    document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+
+    start();
+  }
+
+  // ── MAGNETIC BUTTONS (pointer-fine only) ──
+  if (fine && !reduceMotion) {
     document.querySelectorAll('[data-magnetic]').forEach((el) => {
       let raf;
-      const strength = 0.35;
-      el.addEventListener('mousemove', (e) => {
-        const rect = el.getBoundingClientRect();
-        const x = e.clientX - (rect.left + rect.width / 2);
-        const y = e.clientY - (rect.top + rect.height / 2);
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - (r.left + r.width / 2)) * 0.3;
+        const y = (e.clientY - (r.top + r.height / 2)) * 0.4;
         cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(() => {
-          el.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
-          el.style.setProperty('--mx', `${(e.clientX - rect.left) / rect.width * 100}%`);
-          el.style.setProperty('--my', `${(e.clientY - rect.top) / rect.height * 100}%`);
-        });
-        // signal hero blob to glow on CTA hover
-        if (el.dataset.cursor === 'cta' && window.__bloblHover) window.__bloblHover(true);
+        raf = requestAnimationFrame(() => { el.style.transform = `translate(${x}px, ${y}px)`; });
       });
-      el.addEventListener('mouseleave', () => {
+      el.addEventListener('pointerleave', () => {
         cancelAnimationFrame(raf);
         el.style.transform = '';
-        if (window.__bloblHover) window.__bloblHover(false);
       });
     });
   }
 
-  // ── TEXT SCRAMBLE ───────────────────────────────────────────
-  // Inspired by the classic "decoder" effect — scrambles to original
-  const SCRAMBLE_CHARS = '!<>-_\\/[]{}—=+*^?#01';
-
-  function scrambleText(el) {
-    if (el.dataset.scrambling === '1') return;
-    const original = el.dataset.scrambleOriginal || el.textContent;
-    if (!el.dataset.scrambleOriginal) el.dataset.scrambleOriginal = original;
-
-    el.dataset.scrambling = '1';
-    const len = original.length;
-    const queue = [];
-    for (let i = 0; i < len; i++) {
-      const from = original[i];
-      const to = original[i];
-      const start = Math.floor(Math.random() * 30);
-      const end = start + Math.floor(Math.random() * 30) + 12;
-      queue.push({ from, to, start, end });
-    }
-
-    let frame = 0;
-    function update() {
-      let output = '';
-      let complete = 0;
-      for (let i = 0; i < queue.length; i++) {
-        const { from, to, start, end } = queue[i];
-        let char;
-        if (frame >= end) { complete++; char = to; }
-        else if (frame >= start) {
-          char = SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-        } else { char = from; }
-        output += char;
-      }
-      el.textContent = output;
-      if (complete === queue.length) {
-        el.dataset.scrambling = '0';
-      } else {
-        frame++;
-        requestAnimationFrame(update);
-      }
-    }
-    update();
-  }
-
-  // run on hover
-  document.querySelectorAll('[data-scramble]').forEach((el) => {
-    el.dataset.scrambleOriginal = el.textContent;
-    if (!isCoarse) {
-      el.addEventListener('mouseenter', () => scrambleText(el));
-    }
-  });
-
-  // run once on intersection (auto-reveal effect)
-  const scrambleObs = new IntersectionObserver((entries) => {
-    entries.forEach((e) => {
-      if (e.isIntersecting) {
-        // small delay so it doesn't all fire at once
-        setTimeout(() => scrambleText(e.target), Math.random() * 250);
-        scrambleObs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.6 });
-  document.querySelectorAll('.project__title[data-scramble], .timeline__body h4[data-scramble], .process__item h4[data-scramble]').forEach((el) => {
-    scrambleObs.observe(el);
-  });
-
-  // ── NAV SCROLL STATE ────────────────────────────────────────
-  const nav = document.getElementById('nav');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('is-scrolled', window.scrollY > 40);
-  }, { passive: true });
-
-  // ── MOBILE MENU ─────────────────────────────────────────────
-  const burger = document.getElementById('burger');
-  const mobileMenu = document.getElementById('mobile-menu');
-
-  burger.addEventListener('click', () => {
-    const open = burger.classList.toggle('is-open');
-    mobileMenu.classList.toggle('is-open', open);
-    burger.setAttribute('aria-expanded', String(open));
-    mobileMenu.setAttribute('aria-hidden', String(!open));
-    if (lenis) open ? lenis.stop() : lenis.start();
-    document.body.style.overflow = open ? 'hidden' : '';
-  });
-
-  mobileMenu.querySelectorAll('a').forEach((a) => {
-    a.addEventListener('click', () => {
-      burger.classList.remove('is-open');
-      mobileMenu.classList.remove('is-open');
-      burger.setAttribute('aria-expanded', 'false');
-      mobileMenu.setAttribute('aria-hidden', 'true');
-      if (lenis) lenis.start();
-      document.body.style.overflow = '';
-    });
-  });
-
-  // ── SCROLL REVEALS ──────────────────────────────────────────
-  const revealObs = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      const idx = Array.from(entry.target.parentNode.children).indexOf(entry.target);
-      entry.target.style.transitionDelay = `${Math.min(idx * 70, 500)}ms`;
-      entry.target.classList.add('is-visible');
-      revealObs.unobserve(entry.target);
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
-  document.querySelectorAll('.fade-up').forEach((el) => revealObs.observe(el));
-
-  // ── REVEAL LINES (contact title) ────────────────────────────
-  document.querySelectorAll('.contact__title .reveal').forEach((el, i) => {
-    const original = el.textContent;
-    const cls = el.className;
-    el.textContent = '';
-    el.style.overflow = 'hidden';
-    const inner = document.createElement('span');
-    inner.style.cssText = `display:block; transform:translateY(110%) rotate(6deg); transition: transform 1.1s cubic-bezier(0.22,1,0.36,1) ${i * 120}ms;`;
-    inner.textContent = original;
-    if (cls.includes('italic')) inner.classList.add('italic');
-    if (cls.includes('accent')) inner.classList.add('accent');
-    el.appendChild(inner);
-
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          inner.style.transform = 'translateY(0) rotate(0)';
-          obs.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.4 });
-    obs.observe(el);
-  });
-
-  // ── COUNTERS ────────────────────────────────────────────────
-  const counterObs = new IntersectionObserver((entries) => {
-    entries.forEach((e) => {
-      if (!e.isIntersecting) return;
-      const el = e.target;
-      const target = parseInt(el.dataset.count, 10);
-      const dur = 1500;
-      const start = performance.now();
-      function step(now) {
-        const t = Math.min((now - start) / dur, 1);
-        const eased = 1 - Math.pow(1 - t, 3);
-        el.textContent = Math.floor(target * eased);
-        if (t < 1) requestAnimationFrame(step);
-        else el.textContent = target;
-      }
-      requestAnimationFrame(step);
-      counterObs.unobserve(el);
-    });
-  }, { threshold: 0.6 });
-  document.querySelectorAll('[data-count]').forEach((c) => counterObs.observe(c));
-
-  // ── PROJECT CARD TILT ───────────────────────────────────────
-  if (!isCoarse) {
-    document.querySelectorAll('[data-tilt]').forEach((card) => {
-      let rect, raf;
-      card.addEventListener('mouseenter', () => { rect = card.getBoundingClientRect(); });
-      card.addEventListener('mousemove', (e) => {
-        if (!rect) rect = card.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
+  // ── POINTER TILT on case media (subtle) ──
+  if (fine && !reduceMotion) {
+    document.querySelectorAll('[data-tilt]').forEach((el) => {
+      let raf, rect;
+      el.addEventListener('pointerenter', () => { rect = el.getBoundingClientRect(); });
+      el.addEventListener('pointermove', (e) => {
+        if (!rect) rect = el.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / rect.width - 0.5;
+        const py = (e.clientY - rect.top) / rect.height - 0.5;
         cancelAnimationFrame(raf);
         raf = requestAnimationFrame(() => {
-          card.style.transform =
-            `perspective(900px) rotateX(${-y * 6}deg) rotateY(${x * 8}deg) translateY(-4px)`;
-          const shape = card.querySelector('.project__shape');
-          if (shape) shape.style.transform = `translate(${x * 60}px, ${y * 60}px)`;
+          el.style.transform = `perspective(1100px) rotateX(${-py * 3.2}deg) rotateY(${px * 4}deg) translateY(-6px)`;
         });
       });
-      card.addEventListener('mouseleave', () => {
+      el.addEventListener('pointerleave', () => {
         cancelAnimationFrame(raf);
-        card.style.transform = '';
-        const shape = card.querySelector('.project__shape');
-        if (shape) shape.style.transform = '';
+        el.style.transform = '';
       });
     });
   }
 
-  // ── ANCHOR CLICKS (use Lenis for smooth scroll) ─────────────
-  document.querySelectorAll('a[href^="#"]').forEach((a) => {
-    a.addEventListener('click', (e) => {
-      const id = a.getAttribute('href');
-      if (id.length < 2) return;
-      const target = document.querySelector(id);
-      if (!target) return;
+  // ── LEDGER COUNT-UP ──
+  const counts = Array.from(document.querySelectorAll('.count'));
+  if (counts.length && 'IntersectionObserver' in window) {
+    const countObs = new IntersectionObserver((entries, obs) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const target = parseInt(el.dataset.count, 10) || 0;
+        obs.unobserve(el);
+        if (reduceMotion) { el.textContent = String(target); return; }
+        const dur = 1100;
+        const t0 = performance.now();
+        const tick = (now) => {
+          const p = Math.min((now - t0) / dur, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = String(Math.round(target * eased));
+          if (p < 1) requestAnimationFrame(tick);
+          else el.textContent = String(target);
+        };
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.8 });
+    counts.forEach((c) => countObs.observe(c));
+  }
+
+  // ── CONTACT FORM: real submit with validation + states ──
+  const form = document.getElementById('contact-form');
+  if (form) {
+    const statusEl = document.getElementById('cf-status');
+    const submitBtn = document.getElementById('cf-submit');
+    const btnLabel = submitBtn.querySelector('.contact__submit-label');
+    const nameInput = document.getElementById('cf-name');
+    const emailInput = document.getElementById('cf-email');
+    const msgInput = document.getElementById('cf-message');
+    const companyInput = document.getElementById('cf-company');
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const setStatus = (msg, kind) => {
+      statusEl.textContent = msg;
+      statusEl.classList.remove('is-ok', 'is-err');
+      if (kind) statusEl.classList.add(kind === 'ok' ? 'is-ok' : 'is-err');
+      statusEl.classList.toggle('is-shown', Boolean(msg));
+    };
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (lenis) {
-        lenis.scrollTo(target, { offset: -60, duration: 1.4 });
-      } else {
-        const y = target.getBoundingClientRect().top + window.scrollY - 60;
-        window.scrollTo({ top: y, behavior: 'smooth' });
+
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const message = msgInput.value.trim();
+      const company = companyInput.value.trim(); // honeypot
+
+      if (!name || !email || !message) {
+        setStatus('Please fill in your name, email, and message.', 'err');
+        return;
+      }
+      if (!emailRe.test(email)) {
+        setStatus('That email doesn’t look right — mind checking it?', 'err');
+        emailInput.focus();
+        return;
+      }
+
+      submitBtn.setAttribute('aria-busy', 'true');
+      btnLabel.textContent = 'Sending…';
+      setStatus('', null);
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, message, company }),
+        });
+
+        let data = {};
+        try { data = await res.json(); } catch { /* non-JSON */ }
+
+        if (res.ok && data.ok) {
+          form.reset();
+          setStatus('Message sent — I’ll get back to you soon. Thanks!', 'ok');
+        } else {
+          setStatus(data.error || 'Something went wrong. Email me directly instead.', 'err');
+        }
+      } catch {
+        setStatus('Network error — please email me directly instead.', 'err');
+      } finally {
+        submitBtn.removeAttribute('aria-busy');
+        btnLabel.textContent = 'Send message';
       }
     });
-  });
-
-  // ── SECTION INDICATOR + SCROLL PROGRESS ─────────────────────
-  const indicator = document.getElementById('indicator');
-  const indicatorLinks = indicator ? Array.from(indicator.querySelectorAll('a')) : [];
-  const progress = document.getElementById('progress');
-  const sections = document.querySelectorAll('[data-section]');
-
-  function updateIndicator() {
-    const max = Math.max(1, document.body.scrollHeight - window.innerHeight);
-    const pct = (window.scrollY / max) * 100;
-    if (progress) progress.style.width = pct + '%';
-
-    let active = sections[0];
-    sections.forEach((s) => {
-      const r = s.getBoundingClientRect();
-      if (r.top <= window.innerHeight * 0.4) active = s;
-    });
-    if (active) {
-      const id = active.dataset.section;
-      indicatorLinks.forEach((a) => {
-        a.classList.toggle('is-active', a.dataset.section === id);
-      });
-    }
   }
-  window.addEventListener('scroll', updateIndicator, { passive: true });
-  updateIndicator();
-
-  // ── MARQUEE ANIMATION (manual, scroll-velocity reactive) ────
-  const marquees = document.querySelectorAll('[data-marquee]');
-  const marqueeState = [];
-  marquees.forEach((el) => {
-    const dir = el.dataset.marquee === 'reverse' ? 1 : -1;
-    el.innerHTML = el.innerHTML + el.innerHTML; // double for seamless loop
-    marqueeState.push({ el, x: 0, dir, baseSpeed: 0.4 });
-  });
-
-  let lastScrollY = window.scrollY;
-  let scrollVel = 0;
-  function marqueeTick() {
-    const dy = window.scrollY - lastScrollY;
-    lastScrollY = window.scrollY;
-    scrollVel += (Math.abs(dy) - scrollVel) * 0.1;
-
-    marqueeState.forEach((s) => {
-      const speed = s.baseSpeed + Math.min(scrollVel * 0.2, 4);
-      s.x += s.dir * speed;
-      const w = s.el.scrollWidth / 2;
-      if (Math.abs(s.x) > w) s.x = 0;
-      s.el.style.transform = `translate3d(${s.x}px, 0, 0)`;
-    });
-    requestAnimationFrame(marqueeTick);
-  }
-  if (!reduceMotion) requestAnimationFrame(marqueeTick);
-
-  // ── AUDIO TOGGLE (Web Audio synth pad) ──────────────────────
-  const audioBtn = document.getElementById('audio-toggle');
-  let audioCtx = null;
-  let masterGain = null;
-  let oscNodes = [];
-
-  function startAudio() {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0;
-    masterGain.connect(audioCtx.destination);
-
-    const reverb = audioCtx.createConvolver();
-    // simple noise impulse for reverb
-    const len = audioCtx.sampleRate * 2;
-    const impulse = audioCtx.createBuffer(2, len, audioCtx.sampleRate);
-    for (let ch = 0; ch < 2; ch++) {
-      const data = impulse.getChannelData(ch);
-      for (let i = 0; i < len; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
-      }
-    }
-    reverb.buffer = impulse;
-    reverb.connect(masterGain);
-
-    // ambient pad — three detuned sines
-    const freqs = [110, 138.6, 220.0]; // A2, C#3, A3
-    freqs.forEach((f, i) => {
-      const osc = audioCtx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = f;
-      osc.detune.value = (i - 1) * 6;
-
-      const g = audioCtx.createGain();
-      g.gain.value = 0.06;
-      const lfo = audioCtx.createOscillator();
-      lfo.frequency.value = 0.08 + i * 0.03;
-      const lfoGain = audioCtx.createGain();
-      lfoGain.gain.value = 0.04;
-      lfo.connect(lfoGain).connect(g.gain);
-      lfo.start();
-
-      osc.connect(g).connect(reverb);
-      osc.start();
-      oscNodes.push(osc, lfo);
-    });
-
-    // fade in
-    masterGain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 1.5);
-  }
-
-  function stopAudio() {
-    if (!audioCtx) return;
-    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.6);
-    setTimeout(() => {
-      oscNodes.forEach((n) => { try { n.stop(); } catch {} });
-      oscNodes = [];
-      audioCtx.close();
-      audioCtx = null;
-    }, 700);
-  }
-
-  if (audioBtn) {
-    audioBtn.addEventListener('click', () => {
-      const on = audioBtn.classList.toggle('is-on');
-      audioBtn.querySelector('.audio-toggle__label').textContent = on ? 'SOUND ON' : 'SOUND OFF';
-      if (on) startAudio(); else stopAudio();
-    });
-  }
-
-  // ── EASTER EGG: type "saad" → palette flash ────────────────
-  let buf = '';
-  document.addEventListener('keydown', (e) => {
-    buf = (buf + e.key.toLowerCase()).slice(-4);
-    if (buf === 'saad') {
-      document.documentElement.animate(
-        [
-          { filter: 'hue-rotate(0deg) saturate(1)' },
-          { filter: 'hue-rotate(360deg) saturate(1.6)' },
-          { filter: 'hue-rotate(0deg) saturate(1)' },
-        ],
-        { duration: 1400, easing: 'ease-in-out' }
-      );
-    }
-  });
 })();

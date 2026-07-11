@@ -152,8 +152,15 @@ input, textarea { font: inherit; }
   letter-spacing: -0.03em;
   line-height: 1;
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
+  gap: 0.55rem;
 }
+.wordmark__mark {
+  width: 30px; height: 30px;
+  flex: none;
+  transition: transform 0.4s var(--e-out);
+}
+.wordmark:hover .wordmark__mark { transform: rotate(-8deg); }
 .wordmark__deg { color: var(--accent); }
 
 .masthead__nav {
@@ -416,7 +423,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   transition: transform 0.4s var(--e-out);
 }
 .hero__tile:hover { transform: rotate(0deg) scale(1.04); }
-.hero__tile b { color: var(--accent); font-weight: 700; }
+.hero__tile svg { width: 68%; height: 68%; }
 .hero__name {
   font-family: var(--display);
   font-weight: 700;

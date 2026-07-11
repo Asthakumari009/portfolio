@@ -11,7 +11,7 @@
 //                      for production: https://resend.com/domains
 // ──────────────────────────────────────────────────────────────
 
-const TO_EMAIL = process.env.CONTACT_TO || '001saadurrahman@gmail.com';
+const TO_EMAIL = process.env.CONTACT_TO || 'contact@syedsaadurrahman.in';
 const FROM_EMAIL = process.env.CONTACT_FROM || 'Portfolio <onboarding@resend.dev>';
 
 const escapeHtml = (s) =>

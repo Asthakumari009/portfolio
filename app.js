@@ -273,8 +273,8 @@
       const mailtoFallback = () => {
         const subject = encodeURIComponent(`Portfolio enquiry from ${name}`);
         const body = encodeURIComponent(`${message}\n\n- ${name} (${email})`);
-        window.location.href = `mailto:001saadurrahman@gmail.com?subject=${subject}&body=${body}`;
-        setStatus('Opening your email app with the message. Or write to 001saadurrahman@gmail.com.', 'err');
+        window.location.href = `mailto:contact@syedsaadurrahman.in?subject=${subject}&body=${body}`;
+        setStatus('Opening your email app with the message. Or write to contact@syedsaadurrahman.in.', 'err');
       };
 
       try {

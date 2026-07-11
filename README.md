@@ -31,7 +31,7 @@ Set these environment variables in Vercel
 | Variable | Required | Notes |
 | --- | --- | --- |
 | `RESEND_API_KEY` | yes | From https://resend.com/api-keys |
-| `CONTACT_TO` | no | Destination inbox. Defaults to `001saadurrahman@gmail.com` |
+| `CONTACT_TO` | no | Destination inbox. Defaults to `contact@syedsaadurrahman.in` |
 | `CONTACT_FROM` | no | Verified sender. Defaults to Resend's shared `onboarding@resend.dev`, which only delivers to the Resend account owner. Verify a domain for production: https://resend.com/domains |
 
 Until `RESEND_API_KEY` is set the endpoint returns a clear "not configured"

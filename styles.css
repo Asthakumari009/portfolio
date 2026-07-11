@@ -749,6 +749,96 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   border-radius: 7px;
 }
 
+/* ───────────────── CASE STUDY (Norn) ───────────────── */
+
+.cstudy {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  border-top: 1px solid var(--line-2);
+  padding-top: clamp(1.5rem, 3vw, 2.25rem);
+}
+.cstudy__label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.9rem;
+}
+.cstudy__col p { color: var(--ink-2); font-size: 0.99rem; text-wrap: pretty; }
+.cstudy__col strong { color: var(--ink); font-weight: 600; font-family: var(--mono); font-size: 0.9em; }
+.cstudy__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2rem;
+  margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+}
+.cstudy__link {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line-2);
+  padding-bottom: 3px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.cstudy__link:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ───────────────── WORK WITH ME ───────────────── */
+
+.hire {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.1rem;
+}
+.hire__card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(1.4rem, 2.6vw, 2rem);
+  transition: transform 0.45s var(--e-out), box-shadow 0.45s var(--e-out), border-color 0.3s;
+}
+.hire__card:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent);
+  box-shadow: 0 30px 60px -42px rgba(26, 24, 21, 0.5);
+}
+.hire__num {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+.hire__title {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(1.3rem, 2.2vw, 1.65rem);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0.8rem 0 0.6rem;
+}
+.hire__desc { color: var(--ink-2); font-size: 0.96rem; }
+.hire__proof {
+  margin-top: auto;
+  padding-top: 1.3rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: var(--ink-3);
+}
+.hire__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+}
+.hire__note { color: var(--ink-2); font-size: 0.97rem; }
+
 /* ───────────────── MORE WORK (case-study rows) ───────────────── */
 
 .mrows { border-top: 1px solid var(--line-2); }
@@ -1371,6 +1461,8 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   .mrow { grid-template-columns: 1fr; gap: 0.75rem; }
   .mrow__tags { flex-direction: row; flex-wrap: wrap; gap: 0.4rem 1.1rem; padding-top: 0.2rem; }
   .about { grid-template-columns: 1fr; gap: 2.5rem; }
+  .cstudy { grid-template-columns: 1fr; gap: 1.75rem; }
+  .hire { grid-template-columns: 1fr; }
   .contact__grid { grid-template-columns: 1fr; }
   .stack { grid-template-columns: repeat(2, 1fr); }
   .steps { min-height: 380px; }

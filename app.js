@@ -268,6 +268,15 @@
       btnLabel.textContent = 'Sending…';
       setStatus('', null);
 
+      // Failsafe: if the API can't deliver, hand the message to the
+      // visitor's email app pre-filled, so the form never dead-ends.
+      const mailtoFallback = () => {
+        const subject = encodeURIComponent(`Portfolio enquiry from ${name}`);
+        const body = encodeURIComponent(`${message}\n\n- ${name} (${email})`);
+        window.location.href = `mailto:001saadurrahman@gmail.com?subject=${subject}&body=${body}`;
+        setStatus('Opening your email app with the message. Or write to 001saadurrahman@gmail.com.', 'err');
+      };
+
       try {
         const res = await fetch('/api/contact', {
           method: 'POST',
@@ -282,10 +291,10 @@
           form.reset();
           setStatus('Message sent. I’ll get back to you soon. Thanks!', 'ok');
         } else {
-          setStatus(data.error || 'Something went wrong. Email me directly instead.', 'err');
+          mailtoFallback();
         }
       } catch {
-        setStatus('Network error. Please email me directly instead.', 'err');
+        mailtoFallback();
       } finally {
         submitBtn.removeAttribute('aria-busy');
         btnLabel.textContent = 'Send message';

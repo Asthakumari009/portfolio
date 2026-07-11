@@ -1,29 +1,37 @@
 # Syed Saad Ur Rahman
 
-> Computer science engineer building AI-driven products and full-stack SaaS for production. Based in Hyderabad, India. Contributing engineer on a Guinness World Record team in agentic AI; winner of the NGIT Project Expo 2025.
+> AI engineer and open-source builder. Author of Norn, a persistent-memory MCP server for AI agents, live on npm. Ships agentic systems and full-stack SaaS to production. Contributing engineer on a Guinness World Record team in agentic AI; winner of the NGIT Project Expo 2025. Based in Hyderabad, India.
 
 ## About
 - Name: Syed Saad Ur Rahman
-- Role: CS Engineer, AI Builder, Full-Stack Developer
-- Education: B.Tech in Computer Science Engineering, Neil Gogte Institute of Technology (NGIT), 2024–2027; Diploma in Computer Science, Pallavi Engineering College
+- Role: AI Engineer, open-source MCP builder, full-stack developer
+- Education: B.Tech in Computer Science Engineering, Neil Gogte Institute of Technology (NGIT), 2024 to 2027; Diploma in Computer Science, Pallavi Engineering College
 - Location: Hyderabad, India
-- Focus: Applied AI, agentic systems, full-stack SaaS
+- Focus: MCP and agent infrastructure, applied AI, full-stack SaaS
+
+## Flagship (open source)
+- Norn (https://norn-web-three.vercel.app): persistent-memory MCP server for AI agents, published to npm as @samad001z/norn-server (https://www.npmjs.com/package/@samad001z/norn-server) and @samad001z/norn-core. Two-stage conflict detection (embedding-similarity gate plus NLI model), a conflict-review UI, and a live fleet-monitoring dashboard with SSE streaming and a real-time orbital agent map. 89/89 tests passing. Works with any MCP client (Claude Code, Cursor, and others).
 
 ## Selected work (live)
-- Cracked AI (https://crackedai.in): the AI placement coach for Indian engineers. Adaptive skill diagnostic (DSA, aptitude, OS, DBMS, CN, verbal), AI mock interviews (Technical + HR) with instant scoring, a live "Friday" voice coach for spoken interview practice, and company packs for TCS NQT, Infosys SP, and Wipro NLTH. Stack: LLM, Voice AI, React, FastAPI, Supabase.
+- Cracked AI (https://crackedai.in): the AI placement coach for Indian engineers. Adaptive skill diagnostic (DSA, aptitude, OS, DBMS, CN, verbal), AI mock interviews with instant scoring, a live voice coach for spoken interview practice, and company packs for TCS NQT, Infosys SP, and Wipro NLTH. Stack: LLM, Voice AI, React, FastAPI, Supabase.
 - Van Lavino (https://van-lavino.vercel.app): a full café/restaurant SaaS. QR-code table ordering, Razorpay payments, realtime order updates, a staff order dashboard, and a multi-branch admin panel. Stack: React, TypeScript, Supabase, Razorpay.
-- TenderIQ (https://tender-iq-mu.vercel.app): an agentic AI system for automated tender evaluation that pipelines unstructured procurement documents through an LLM reasoning layer to surface structured insights. Stack: Python, LLM, PDF pipeline.
+- TenderIQ: an agentic AI system for automated tender evaluation that pipelines unstructured procurement documents through an LLM reasoning layer to surface structured insights. Stack: Python, LLM, PDF pipeline.
 
 ## Other projects
+- Bytes of Joy: cloud-kitchen ordering platform for a home bakery in Hyderabad; first production deployment with real end users.
+- Vita: React Native AI health companion; Gemini OCR with Pydantic-validated extraction, FastAPI backend, doctor QR-share.
+- BasketIQ: cross-platform grocery price-comparison app; Expo/React Native, FastAPI, Supabase with pgvector, Gemini API.
 - FasalDoc: computer-vision model for early plant disease detection from a single leaf image.
 - TruthLens: multi-modal misinformation detection (LLM reasoning, digital forensics, rPPG-based deepfake detection).
 - Construction Co. website: production corporate website shipped to a paying client.
 
 ## Recognition
-- Guinness World Record — Agentic AI Hackathon (2025), contributing engineer.
+- Guinness World Record, Agentic AI Hackathon (2025), contributing engineer.
 - Winner, NGIT Project Expo 2025.
 
 ## Contact
 - Email: 001saadurrahman@gmail.com
+- GitHub: https://github.com/samad001z
+- npm: https://www.npmjs.com/~samad001z
 - LinkedIn: https://www.linkedin.com/in/syed-saad-ur-rahman-16720130b/
-- Location: Old Bowenpally, Hyderabad, India
+- Location: Hyderabad, India

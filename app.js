@@ -1,7 +1,8 @@
 // ──────────────────────────────────────────────────────────────
 // SAAD° — interaction layer
-// Reveal motion, masthead state, active nav, mobile menu, contact form.
-// No external dependencies.
+// Reveal motion, masthead state, active nav, mobile menu, hero showcase,
+// magnetic buttons, pointer tilt, count-up, FAQ accordion, footer parallax,
+// contact form. No external dependencies.
 // ──────────────────────────────────────────────────────────────
 
 (function () {
@@ -18,6 +19,7 @@
   const revealAll = () => {
     revealEls.forEach((el) => el.classList.add('is-in'));
     if (heroTitle) heroTitle.classList.add('is-in');
+    document.querySelectorAll('.case').forEach((c) => c.classList.add('is-in'));
   };
 
   if (!reduceMotion && 'IntersectionObserver' in window) {
@@ -25,7 +27,6 @@
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         const el = entry.target;
-        // stagger relative to data-reveal siblings sharing a parent
         const group = Array.from(el.parentElement.querySelectorAll(':scope > [data-reveal]'));
         const i = Math.max(0, group.indexOf(el));
         el.style.setProperty('--reveal-delay', `${Math.min(i * 70, 350)}ms`);
@@ -33,12 +34,21 @@
         obs.unobserve(el);
       });
     }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
-
     revealEls.forEach((el) => io.observe(el));
+
+    // case media clip-wipe (independent of [data-reveal] staggering)
+    const caseObs = new IntersectionObserver((entries, obs) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-in');
+        obs.unobserve(entry.target);
+      });
+    }, { threshold: 0.25 });
+    document.querySelectorAll('.case').forEach((c) => caseObs.observe(c));
+
     if (heroTitle) requestAnimationFrame(() => heroTitle.classList.add('is-in'));
 
-    // Failsafe: content must never stay hidden. If a render context never
-    // scrolls (headless, prerender, hidden tab), reveal everything anyway.
+    // Failsafe: content must never stay hidden.
     window.addEventListener('load', () => setTimeout(revealAll, 2500), { once: true });
   } else {
     revealAll();
@@ -62,9 +72,11 @@
 
   // ── MASTHEAD: hairline on scroll ──
   const masthead = document.querySelector('.masthead');
-  const onScroll = () => masthead.classList.toggle('is-stuck', window.scrollY > 8);
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  if (masthead) {
+    const onScroll = () => masthead.classList.toggle('is-stuck', window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
 
   // ── ACTIVE NAV LINK ──
   const navLinks = Array.from(document.querySelectorAll('.masthead__nav a'));
@@ -112,50 +124,6 @@
 
   const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-  // ── HERO SHOWCASE: auto-rotating carousel of live projects ──
-  const showcase = document.querySelector('[data-showcase]');
-  if (showcase) {
-    const slides = [
-      { domain: 'crackedai.in',           label: 'Cracked AI', href: 'https://crackedai.in' },
-      { domain: 'van-lavino.vercel.app',  label: 'Van Lavino', href: 'https://van-lavino.vercel.app' },
-      { domain: 'tender-iq-mu.vercel.app', label: 'TenderIQ',  href: 'https://tender-iq-mu.vercel.app' },
-    ];
-    const imgs = Array.from(showcase.querySelectorAll('.showcase__img'));
-    const dots = Array.from(showcase.querySelectorAll('.showcase__dot'));
-    const link = document.getElementById('showcase-link');
-    const domainEl = document.getElementById('showcase-domain');
-    const labelEl = document.getElementById('showcase-label');
-    let idx = 0;
-    let timer = null;
-
-    const show = (n) => {
-      idx = (n + slides.length) % slides.length;
-      imgs.forEach((im, i) => im.classList.toggle('is-active', i === idx));
-      dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
-      link.href = slides[idx].href;
-      domainEl.textContent = slides[idx].domain;
-      labelEl.textContent = slides[idx].label;
-    };
-
-    const start = () => {
-      if (reduceMotion || timer) return;
-      timer = setInterval(() => show(idx + 1), 3600);
-    };
-    const stop = () => { clearInterval(timer); timer = null; };
-
-    dots.forEach((d, i) => d.addEventListener('click', (e) => {
-      e.preventDefault();
-      stop(); show(i); start();
-    }));
-    showcase.addEventListener('mouseenter', stop);
-    showcase.addEventListener('mouseleave', start);
-    showcase.addEventListener('focusin', stop);
-    showcase.addEventListener('focusout', start);
-    document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
-
-    start();
-  }
-
   // ── MAGNETIC BUTTONS (pointer-fine only) ──
   if (fine && !reduceMotion) {
     document.querySelectorAll('[data-magnetic]').forEach((el) => {
@@ -195,7 +163,7 @@
     });
   }
 
-  // ── LEDGER COUNT-UP ──
+  // ── COUNT-UP (stats) ──
   const counts = Array.from(document.querySelectorAll('.count'));
   if (counts.length && 'IntersectionObserver' in window) {
     const countObs = new IntersectionObserver((entries, obs) => {
@@ -218,6 +186,45 @@
       });
     }, { threshold: 0.8 });
     counts.forEach((c) => countObs.observe(c));
+  }
+
+  // ── PROCESS PIPELINE: expanding panels ──
+  const stepsWrap = document.querySelector('[data-steps]');
+  if (stepsWrap) {
+    const steps = Array.from(stepsWrap.querySelectorAll('[data-step]'));
+    const activate = (el) => {
+      steps.forEach((s) => {
+        const on = s === el;
+        s.classList.toggle('is-active', on);
+        s.setAttribute('aria-expanded', String(on));
+      });
+    };
+    steps.forEach((s) => {
+      s.addEventListener('click', () => activate(s));
+      s.addEventListener('focus', () => activate(s));
+      if (fine) s.addEventListener('pointerenter', () => activate(s));
+    });
+  }
+
+  // ── FAQ ACCORDION ──
+  const faq = document.querySelector('[data-faq]');
+  if (faq) {
+    const items = Array.from(faq.querySelectorAll('.faq__item'));
+    items.forEach((item) => {
+      const btn = item.querySelector('.faq__q');
+      btn.addEventListener('click', () => {
+        const open = item.getAttribute('data-open') === 'true';
+        // close others for a clean single-open accordion
+        items.forEach((other) => {
+          if (other !== item) {
+            other.setAttribute('data-open', 'false');
+            other.querySelector('.faq__q').setAttribute('aria-expanded', 'false');
+          }
+        });
+        item.setAttribute('data-open', String(!open));
+        btn.setAttribute('aria-expanded', String(!open));
+      });
+    });
   }
 
   // ── CONTACT FORM: real submit with validation + states ──
@@ -252,7 +259,7 @@
         return;
       }
       if (!emailRe.test(email)) {
-        setStatus('That email doesn’t look right — mind checking it?', 'err');
+        setStatus('That email doesn’t look right. Mind checking it?', 'err');
         emailInput.focus();
         return;
       }
@@ -273,12 +280,12 @@
 
         if (res.ok && data.ok) {
           form.reset();
-          setStatus('Message sent — I’ll get back to you soon. Thanks!', 'ok');
+          setStatus('Message sent. I’ll get back to you soon. Thanks!', 'ok');
         } else {
           setStatus(data.error || 'Something went wrong. Email me directly instead.', 'err');
         }
       } catch {
-        setStatus('Network error — please email me directly instead.', 'err');
+        setStatus('Network error. Please email me directly instead.', 'err');
       } finally {
         submitBtn.removeAttribute('aria-busy');
         btnLabel.textContent = 'Send message';

@@ -16,14 +16,16 @@
 
   --ink:   #1a1815;
   --ink-2: #57514a;
-  --ink-3: #8a8175;
+  --ink-3: #6e675e;
 
   --line:   rgba(26, 24, 21, 0.12);
   --line-2: rgba(26, 24, 21, 0.24);
 
   /* single accent — burnt orange */
-  --accent:       #e5541e;
-  --accent-press: #c6410f;
+  --accent:       #e5541e;   /* surfaces, frame, auras, dots — unchanged */
+  --accent-ink:   #ad3f17;   /* accent AS TEXT on cream (4.88:1) */
+  --accent-fill:  #bd4519;   /* accent AS BACKGROUND under --on-accent (4.87:1) */
+  --accent-press: #a83a13;
   --accent-soft:  #f2b199;
   --accent-tint:  rgba(229, 84, 30, 0.12);
   --on-accent:    #fdf6ef;
@@ -37,7 +39,7 @@
   --d-card:  #241e17;
   --d-ink:   #f1ebe0;
   --d-ink-2: #b7ac9b;
-  --d-ink-3: #857b6c;
+  --d-ink-3: #908575;
   --d-line:   rgba(241, 235, 224, 0.12);
   --d-line-2: rgba(241, 235, 224, 0.22);
 
@@ -76,6 +78,11 @@ html {
 body {
   background: var(--accent);            /* the orange frame */
   padding: var(--frame);
+  /* index.html sets viewport-fit=cover, so the page runs under the notch and
+     the home indicator. Without this the footer wordmark is clipped on iOS. */
+  padding-right: calc(var(--frame) + env(safe-area-inset-right));
+  padding-bottom: calc(var(--frame) + env(safe-area-inset-bottom));
+  padding-left: calc(var(--frame) + env(safe-area-inset-left));
   color: var(--ink);
   font-family: var(--sans);
   font-size: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
@@ -90,6 +97,23 @@ body {
   background: var(--paper);
   border-radius: 20px;
   overflow: clip;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Fine grain over the whole page. Inline SVG turbulence: no request, no
+   layout cost, pointer-events:none so it never intercepts a click. */
+.shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+}
+@media (prefers-reduced-transparency: reduce) {
+  .shell::after { display: none; }
 }
 
 a { color: inherit; text-decoration: none; }
@@ -192,34 +216,6 @@ input, textarea { font: inherit; }
 
 .masthead__end { display: flex; align-items: center; gap: 1.15rem; }
 
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.01em;
-  color: var(--ink-2);
-}
-.status__dot, .dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  position: relative;
-  flex: none;
-}
-.status__dot::after {
-  content: '';
-  position: absolute; inset: 0;
-  border-radius: 50%;
-  background: var(--accent);
-  animation: ping 2.6s var(--e-out) infinite;
-}
-@keyframes ping {
-  0% { transform: scale(1); opacity: 0.55; }
-  70%, 100% { transform: scale(2.8); opacity: 0; }
-}
-
 .link-cta {
   display: inline-flex;
   align-items: center;
@@ -227,7 +223,7 @@ input, textarea { font: inherit; }
   font-weight: 600;
   font-size: 0.9rem;
   color: var(--on-accent);
-  background: var(--accent);
+  background: var(--accent-fill);
   padding: 0.55rem 1rem;
   border-radius: 999px;
   transition: background 0.25s var(--e-soft), transform 0.2s var(--e-out);
@@ -238,8 +234,13 @@ input, textarea { font: inherit; }
 .menu-btn {
   display: none;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 5px;
-  padding: 8px 4px;
+  /* 44x44 hit area (WCAG 2.5.5); the bars stay 24px wide */
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;   /* keep the optical edge where it was */
 }
 .menu-btn span {
   display: block;
@@ -305,7 +306,7 @@ input, textarea { font: inherit; }
 .btn:active { transform: scale(0.97); }
 
 .btn--solid {
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--on-accent);
   box-shadow: 0 12px 30px -14px var(--accent);
 }
@@ -368,6 +369,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   letter-spacing: -0.02em;
   text-transform: uppercase;
   line-height: 1;
+  text-wrap: balance;
 }
 .s-note {
   margin-left: auto;
@@ -504,14 +506,6 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   transition: transform 0.5s var(--e-out);
   will-change: transform;
 }
-.frame--dark {
-  background: var(--d-card);
-  border-color: var(--d-line);
-  box-shadow: 0 44px 90px -50px #000;
-}
-.frame--dark .frame__bar { color: var(--d-ink-3); }
-.frame--dark .frame__bar i { background: var(--d-line-2); }
-.frame--dark .frame__shot { background: var(--d-bg-2); }
 .feature__media:hover .frame__shot img { transform: scale(1.03); }
 
 /* ───────────────── FRAME (browser chrome) ───────────────── */
@@ -525,6 +519,16 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   overflow: hidden;
   transition: box-shadow 0.5s var(--e-out);
 }
+
+/* dark variant — MUST follow .frame; equal specificity, source order decides */
+.frame--dark {
+  background: var(--d-card);
+  border-color: var(--d-line);
+  box-shadow: 0 44px 90px -50px #000;
+}
+.frame--dark .frame__bar { color: var(--d-ink-3); }
+.frame--dark .frame__bar i { background: var(--d-line-2); }
+.frame--dark .frame__shot { background: var(--d-bg-2); }
 .frame__bar {
   display: flex;
   align-items: center;
@@ -584,6 +588,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
 .stat__num {
   font-family: var(--display);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   font-size: clamp(2.6rem, 5vw, 3.9rem);
   line-height: 0.95;
   letter-spacing: -0.04em;
@@ -625,7 +630,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   transition: transform 0.35s var(--e-out), border-color 0.25s, background 0.25s, color 0.25s;
 }
 .scatter li:hover { transform: rotate(0deg) scale(1.06); border-color: var(--accent); }
-.scatter li.is-hot { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+.scatter li.is-hot { background: var(--accent-fill); color: var(--on-accent); border-color: transparent; }
 .scatter li.is-ink { background: var(--ink); color: var(--paper); border-color: transparent; }
 
 /* ───────────────── DARK BAND (Selected work) ───────────────── */
@@ -719,6 +724,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   letter-spacing: -0.035em;
   line-height: 1;
   margin-bottom: 0.85rem;
+  text-wrap: balance;
 }
 .case__desc {
   color: var(--d-ink-2);
@@ -726,6 +732,14 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   max-width: 50ch;
   margin-bottom: 1.4rem;
   text-wrap: pretty;
+}
+.case__outcome {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--d-ink-2);
+  margin-bottom: 1.1rem;
 }
 .case__links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; }
 .case__link {
@@ -771,7 +785,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   font-size: 0.76rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-ink);
   margin-bottom: 0.9rem;
 }
 .cstudy__col p { color: var(--ink-2); font-size: 0.99rem; text-wrap: pretty; }
@@ -818,7 +832,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   font-family: var(--mono);
   font-size: 0.74rem;
   letter-spacing: 0.06em;
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .hire__title {
   font-family: var(--display);
@@ -828,7 +842,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   line-height: 1.05;
   margin: 0.8rem 0 0.6rem;
 }
-.hire__desc { color: var(--ink-2); font-size: 0.96rem; }
+.hire__desc { color: var(--ink-2); font-size: 0.96rem; text-wrap: pretty; }
 .hire__proof {
   margin-top: auto;
   padding-top: 1.3rem;
@@ -876,6 +890,14 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   max-width: 58ch;
   margin-top: 0.7rem;
 }
+.mrow__outcome {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 0.7rem;
+}
 .mrow__tags {
   display: flex;
   flex-direction: column;
@@ -885,7 +907,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   font-family: var(--mono);
   font-size: 0.78rem;
   letter-spacing: 0.02em;
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .mrow__tags li::before { content: '// '; }
 
@@ -912,7 +934,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   font-family: var(--mono);
   font-size: 0.72rem;
   letter-spacing: 0.04em;
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .cap__title {
   font-family: var(--display);
@@ -922,7 +944,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   line-height: 1.02;
   margin: 0.9rem 0 0.7rem;
 }
-.cap__desc { color: var(--ink-2); font-size: 0.98rem; max-width: 34ch; }
+.cap__desc { color: var(--ink-2); font-size: 0.98rem; max-width: 34ch; text-wrap: pretty; }
 .cap__list { margin-top: auto; padding-top: 1.4rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .cap__list li {
   font-family: var(--mono);
@@ -936,16 +958,16 @@ section[id], #top { scroll-margin-top: 4.75rem; }
 /* varied cell backgrounds for bento diversity */
 .cap--a { background: var(--ink); color: var(--paper); border-color: transparent; }
 .cap--a .cap__no { color: var(--accent-soft); }
-.cap--a .cap__desc { color: rgba(241, 235, 224, 0.7); }
-.cap--a .cap__list li { color: rgba(241, 235, 224, 0.72); border-color: rgba(241, 235, 224, 0.18); }
+.cap--a .cap__desc { color: rgba(241, 235, 224, 0.88); }
+.cap--a .cap__list li { color: rgba(241, 235, 224, 0.88); border-color: rgba(241, 235, 224, 0.28); }
 .cap--a .cap__glow {
   position: absolute; inset: auto -20% -35% -20%; height: 70%;
   background: radial-gradient(60% 100% at 50% 100%, var(--accent-tint), transparent 70%);
   pointer-events: none;
 }
-.cap--b { background: var(--accent); color: var(--on-accent); border-color: transparent; }
-.cap--b .cap__no { color: rgba(253, 246, 239, 0.85); }
-.cap--b .cap__desc { color: rgba(253, 246, 239, 0.9); }
+.cap--b { background: var(--accent-fill); color: var(--on-accent); border-color: transparent; }
+.cap--b .cap__no { color: var(--on-accent); }
+.cap--b .cap__desc { color: var(--on-accent); }
 .cap--b .cap__list li { color: var(--on-accent); border-color: rgba(253, 246, 239, 0.35); }
 .cap--c { background: var(--card); }
 
@@ -1037,7 +1059,6 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   color: var(--ink-3);
 }
 .profile__row dd { font-weight: 500; font-size: 0.97rem; }
-.profile__status { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--accent); }
 
 /* ───────────────── STACK ───────────────── */
 
@@ -1098,7 +1119,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   font-family: var(--mono);
   font-size: 0.74rem;
   letter-spacing: 0.06em;
-  color: var(--accent);
+  color: var(--accent-ink);
 }
 .step__ghost {
   position: absolute;
@@ -1139,10 +1160,11 @@ section[id], #top { scroll-margin-top: 4.75rem; }
 
 /* panel palette (matches the bento family) */
 .step--ink { background: var(--ink); color: var(--paper); border-color: transparent; }
-.step--ink .step__desc { color: rgba(241, 235, 224, 0.75); }
-.step--hot { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+.step--ink .step__num { color: var(--accent); }
+.step--ink .step__desc { color: rgba(241, 235, 224, 0.88); }
+.step--hot { background: var(--accent-fill); color: var(--on-accent); border-color: transparent; }
 .step--hot .step__num { color: var(--on-accent); }
-.step--hot .step__desc { color: rgba(253, 246, 239, 0.92); }
+.step--hot .step__desc { color: var(--on-accent); }
 .step--paper { background: var(--card); color: var(--ink); }
 .step--paper .step__desc { color: var(--ink-2); }
 .step--glow::after {
@@ -1248,7 +1270,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
 /* orange CTA band (reference style) */
 .cta-band {
   position: relative;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--on-accent);
   border-radius: 24px;
   text-align: center;
@@ -1270,7 +1292,6 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   font-size: 0.74rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.9;
   margin-bottom: 1rem;
 }
 .cta-band__title {
@@ -1370,7 +1391,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem var(--gut);
 }
-.footer__col h4 {
+.footer__col h2 {
   font-family: var(--mono);
   font-size: 0.7rem;
   font-weight: 500;
@@ -1395,7 +1416,12 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   padding: clamp(1rem, 2vw, 1.75rem) var(--pad) clamp(1.25rem, 2.5vw, 2rem);
   border-top: 1px solid var(--line);
 }
-.footer__mark svg { display: block; width: 100%; height: auto; }
+.footer__mark svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1200 / 132;   /* height:auto on a viewBox'd SVG can resolve to 0 */
+}
 .footer__mark text {
   font-family: var(--display);
   font-weight: 700;
@@ -1453,6 +1479,61 @@ section[id], #top { scroll-margin-top: 4.75rem; }
 .force-show [data-hero-title] .line__in { opacity: 1 !important; transform: none !important; }
 .force-show .case .frame__shot img { clip-path: none !important; }
 
+/* ───────────────── MOBILE TYPE FLOOR ─────────────────
+   The mono micro-labels bottom out at 10.9px on a 375px screen, which is
+   under the comfortable reading floor. Below 720px they get a real minimum;
+   the desktop scale is untouched. */
+
+@media (max-width: 720px) {
+  .stat__tag,
+  .cap__no, .cap__list li,
+  .tags li, .tags--chip li,
+  .case__meta, .case__outcome,
+  .mrow__outcome, .mrow__tags,
+  .contact__item dt, .profile__row dt,
+  .field label, .footer__col h2,
+  .hire__num, .hire__proof,
+  .step__num, .cstudy__label,
+  .awards__year, .feature__label {
+    font-size: 0.8rem;
+  }
+  .s-note { font-size: 1rem; }
+
+  /* the hero support copy is uppercase mono — it needs more room per line
+     at small sizes or it reads as a wall */
+  .hero__desc {
+    font-size: 0.86rem;
+    line-height: 1.75;
+    letter-spacing: 0.04em;
+  }
+  .hero__top { gap: 1rem; }
+}
+
+/* ───────────────── TOUCH ERGONOMICS ─────────────────
+   Pointer-coarse only, so the desktop layout keeps its tight rhythm.
+   Every interactive target gets >=44px of height without moving its
+   visual box: padding is added and pulled back out with margin. */
+
+@media (max-width: 720px), (pointer: coarse) {
+  .footer__col ul { gap: 0; }
+  .footer__col li a { display: inline-flex; align-items: center; min-height: 44px; }
+
+  .contact__item { padding: 0.85rem 0; }
+  .contact__item dd a { display: inline-flex; align-items: center; min-height: 44px; }
+
+  .case__links { gap: 0 1.5rem; }
+  .case__link,
+  .cstudy__link { min-height: 44px; }
+
+  .mobile-nav nav a { padding: 0.65rem 0; }
+  .wordmark { min-height: 44px; }
+  .skip-link { min-height: 44px; display: inline-flex; align-items: center; }
+  .mobile-nav__foot a { display: inline-flex; align-items: center; min-height: 44px; }
+
+  /* hover-only affordances never fire on touch — don't reserve space for them */
+  .reel__item:hover { transform: none; }
+}
+
 /* ───────────────── RESPONSIVE ───────────────── */
 
 @media (max-width: 1000px) {
@@ -1476,7 +1557,7 @@ section[id], #top { scroll-margin-top: 4.75rem; }
 }
 
 @media (max-width: 720px) {
-  .masthead__nav, .status { display: none; }
+  .masthead__nav { display: none; }
   .menu-btn { display: flex; }
   .link-cta { display: none; }
   .caps { grid-template-columns: 1fr; }
@@ -1485,7 +1566,32 @@ section[id], #top { scroll-margin-top: 4.75rem; }
   .awards__row { grid-template-columns: 3.5rem 1fr; }
   .awards__row--star::before { display: none; }
   .hero__name { font-size: clamp(3.4rem, 19vw, 6rem); }
-  .footer__cols { grid-template-columns: 1fr 1fr; }
+  /* One full-width row per group, each list wrapping horizontally. The
+     27-char contact email needs ~190px and never fits a 147px half-column,
+     so the columns collapse and it spans the whole footer width instead. */
+  .footer__cols {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding-bottom: 1.75rem;
+  }
+  .footer__col h2 { margin-bottom: 0.3rem; }
+  .footer__col ul { flex-direction: row; flex-wrap: wrap; gap: 0 1.35rem; }
+  .footer__col a, .footer__col span { font-size: 0.9rem; overflow-wrap: anywhere; }
+
+  /* Info is static copy, not a nav column - read it as a baseline strip */
+  .footer__col--info { padding-top: 1.25rem; border-top: 1px solid var(--line); }
+  .footer__col--info ul { gap: 0.35rem 1.1rem; }
+  .footer__col--info span { color: var(--ink-3); font-size: 0.8rem; }
+
+  /* clear the shell's 20px bottom radius and the safe-area inset, and give the
+     mark the desktop's airier band */
+  .footer__mark { padding-top: 1.6rem; padding-bottom: 1.9rem; }
+
+  /* Desktop gets 1112px for these 20 characters; a 412px screen gets 335px, so
+     the type lands at 35px instead of 116px. Bleeding the wordmark past the
+     footer's side padding buys back what's available - the border-top and the
+     columns above stay aligned to --pad. */
+  .footer__mark svg { width: calc(100% + 1.6rem); margin-inline: -0.8rem; }
 }
 
 @media (max-width: 720px) {

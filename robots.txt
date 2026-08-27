@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://portfolio-001z.vercel.app/sitemap.xml
+Sitemap: https://www.syedsaadurrahman.in/sitemap.xml
